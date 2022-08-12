@@ -21,7 +21,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.collab-proxy": {
-      "version": "1.15.18",
+      "version": "1.17.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -58,7 +58,7 @@
       }
     },
     "com.unity.ide.rider": {
-      "version": "3.0.14",
+      "version": "3.0.15",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -67,7 +67,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.visualstudio": {
-      "version": "2.0.15",
+      "version": "2.0.16",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -90,7 +90,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ml-agents": {
-      "version": "file:C:/Users/G414/Desktop/ml-agents-release_19/com.unity.ml-agents",
+      "version": "file:D:/연구실 프로젝트/ml-agents-release_19/com.unity.ml-agents",
       "depth": 0,
       "source": "local",
       "dependencies": {
@@ -100,7 +100,7 @@
       }
     },
     "com.unity.ml-agents.extensions": {
-      "version": "file:C:/Users/G414/Desktop/ml-agents-release_19/com.unity.ml-agents.extensions",
+      "version": "file:D:/연구실 프로젝트/ml-agents-release_19/com.unity.ml-agents.extensions",
       "depth": 0,
       "source": "local",
       "dependencies": {
