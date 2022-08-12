@@ -3,7 +3,7 @@ using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using System.Collections;
 
-public class PlayerAgent : Agent
+public class PlayerAgentTest : Agent
 {
     private Transform tr;
     private Rigidbody rb;
@@ -12,7 +12,8 @@ public class PlayerAgent : Agent
     public Renderer floorRd;
 
     private Material originMt;
-    public Material HitFloor;
+    public Material CFloor;
+    public Material WFloor;
 
     public override void Initialize()
     {
@@ -28,11 +29,12 @@ public class PlayerAgent : Agent
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
-        tr.localPosition = new Vector3(Random.Range(-4.0f, 4.0f), 0.3f, Random.Range(-4.0f, 4.0f));
-        targetTr.localPosition = new Vector3(Random.Range(-4.0f, 4.0f), 0.3f, Random.Range(-4.0f, 4.0f));
+        tr.localPosition = new Vector3(Random.Range(-4.0f, 4.0f), 0.05f, Random.Range(-4.0f, 4.0f));
+        targetTr.localPosition = new Vector3(Random.Range(-4.0f, 4.0f), 0.55f, Random.Range(-4.0f, 4.0f));
 
         StartCoroutine(RevertMaterial());
     }
+
 
     public override void CollectObservations(Unity.MLAgents.Sensors.VectorSensor sensor)
     {
@@ -44,14 +46,13 @@ public class PlayerAgent : Agent
 
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
+        //데이터를 정규화
         float h = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1.0f, 1.0f);
         float v = Mathf.Clamp(actionBuffers.ContinuousActions[1], -1.0f, 1.0f);
         Vector3 dir = (Vector3.forward * v) + (Vector3.right * h);
         rb.AddForce(dir.normalized * 50.0f);
 
-        if (actionBuffers.ContinuousActions[2] == 1)
-            Debug.Log("Shoot");
-
+        //지속적으로 이동을 이끌어내기 위한 마이너스 보상
         SetReward(-0.001f);
     }
 
@@ -60,7 +61,26 @@ public class PlayerAgent : Agent
         var continuousActionsOut = actionsOut.ContinuousActions;
         continuousActionsOut[0] = Input.GetAxis("Horizontal");
         continuousActionsOut[1] = Input.GetAxis("Vertical");
-        continuousActionsOut[2] = Random.Range(0, 2);
+        Debug.Log($"[0]={continuousActionsOut[0]} [1]={continuousActionsOut[1]}");
+    }
+
+    void OnCollisionEnter(Collision coll)
+    {
+        if (coll.collider.CompareTag("OUTLINE"))
+        {
+            floorRd.material = WFloor;
+
+            SetReward(-1.0f);
+            EndEpisode();
+        }
+
+        if (coll.collider.CompareTag("TARGET"))
+        {
+            floorRd.material = CFloor;
+
+            SetReward(+1.0f);
+            EndEpisode();
+        }
     }
 
     IEnumerator RevertMaterial()
