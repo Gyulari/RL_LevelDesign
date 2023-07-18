@@ -5,7 +5,7 @@ using Unity.MLAgents;
 
 public class BattleGameManager : MonoBehaviour
 {
-    /*   필요 없을 것으로 예상됨
+    /*
     private void OnEnable()
     {
         // Subscribe to the reset event function
