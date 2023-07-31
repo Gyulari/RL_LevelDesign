@@ -9,13 +9,11 @@ public class FireController : MonoBehaviour
     [SerializeField] private TargetType target;
 
     // List of enemy agents in fire range
-    // [HideInInspector] public List<GameObject> collidedObjects = new();
     public List<GameObject> collidedObjects = new();
 
     private void OnEnable()
     {
         // Subscribe to the destroy event function
-        BattleAgentController.OnDestroyed += RemoveDestroyedObjects;
         BattleAgentController.OnRetired += RemoveRetiredObjects;
         BattleStageEnvController.OnClearFireRange += AllClearFireRangeList;
     }
@@ -23,8 +21,8 @@ public class FireController : MonoBehaviour
     private void OnDisable()
     {
         // Unsubscribe to the destroy event function
-        BattleAgentController.OnDestroyed -= RemoveDestroyedObjects;
         BattleAgentController.OnRetired -= RemoveRetiredObjects;
+        BattleStageEnvController.OnClearFireRange -= AllClearFireRangeList;
     }
 
     public void Fire()
@@ -94,14 +92,6 @@ public class FireController : MonoBehaviour
         }
     }
 
-    // Remove destroyed enemy agents from the list
-    private void RemoveDestroyedObjects(GameObject destroyedObjects)
-    {
-        if (collidedObjects.Contains(destroyedObjects)) {
-            collidedObjects.Remove(destroyedObjects);
-        }
-    }
-
     private void RemoveRetiredObjects(GameObject retiredObjects)
     {
         if (collidedObjects.Contains(retiredObjects)) {
@@ -111,7 +101,6 @@ public class FireController : MonoBehaviour
 
     private void AllClearFireRangeList()
     {
-        gameObject.transform.parent.gameObject.GetComponent<BattleAgentController>().CurrentHP = 100.0f;
         collidedObjects.Clear();
     }
 }

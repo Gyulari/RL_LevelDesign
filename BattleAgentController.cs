@@ -18,12 +18,6 @@ public enum BattleTeam
 
 public class BattleAgentController : Agent
 {
-    /*
-    // Destroy Event Handler
-    public delegate void OnDestroyedEventHandler(GameObject destroyedObjcet);
-    public static event OnDestroyedEventHandler OnDestroyed;
-    */
-
     public delegate void OnRetiredEventHandler(GameObject retiredObj);
     public static event OnRetiredEventHandler OnRetired;
 
@@ -33,22 +27,11 @@ public class BattleAgentController : Agent
     // Team
     [HideInInspector] public BattleTeam team;
 
-    // Existential Reward
-    // It is reward value given continuously in the environment.
-    float m_Existential;
-
-    /*
-    // NotDestroyed Signal for Reset
-    public bool isNotKilled = true;
-    */
-
     // Fire Delay time & Fire hold time
     [SerializeField] float fireDelay = 1.5f;
     [SerializeField] float fireHold = 0.5f;
     bool canFire = true;
     bool isFiring = false;
-
-    // public bool isRetired = false;
 
     // Agent HP
     private const float maxHP = 100.0f;
@@ -63,54 +46,30 @@ public class BattleAgentController : Agent
         set
         {
             if(value <= 0.0f) {
-                // isNotKilled = false;
                 if(team == BattleTeam.Blue) {
                     if(BattleStageSettings.destroyedBlue < 5) {
                         BattleStageSettings.destroyedBlue++;
+                        transform.GetChild(0).gameObject.GetComponent<FireController>().collidedObjects.Clear();
                         gameObject.SetActive(false);
-                        OnRetire();
-                        curHP = maxHP;
-                        // Destroy(gameObject);
+                        OnRetire(true);
                     }
                     else {
-                        OnRetire();
+                        OnRetire(false);
                         _BattleStageSettings.AllAgentsDestroyed(team);
-                        curHP = maxHP;
                     }
                 }
                 if(team == BattleTeam.Red) {
                     if(BattleStageSettings.destroyedRed < 5) {
                         BattleStageSettings.destroyedRed++;
+                        transform.GetChild(0).gameObject.GetComponent<FireController>().collidedObjects.Clear();
                         gameObject.SetActive(false);
-                        curHP = maxHP;
-                        OnRetire();
-                        // Destroy(gameObject);
+                        OnRetire(true);
                     }
                     else {
-                        OnRetire();
+                        OnRetire(false);
                         _BattleStageSettings.AllAgentsDestroyed(team);
-                        curHP = maxHP;
                     }
                 }
-                /*   수정 필요 ①
-                isNotKilled = false;
-                if (team == BattleTeam.Blue) {
-                    if (BattleStageSettings.destroyedBlue != 5) {
-                        Destroy(gameObject);
-                    }
-                    else {
-                        BattleStageSettings.destroyedBlue++;
-                    }
-                }
-                if(team == BattleTeam.Red) {
-                    if(BattleStageSettings.destroyedRed != 5) {
-                        Destroy(gameObject);
-                    }
-                    else {
-                        BattleStageSettings.destroyedRed++;
-                    }
-                }
-                */
             }
             else {
                 curHP = value;
@@ -129,16 +88,9 @@ public class BattleAgentController : Agent
 
     public override void Initialize()
     {
-        // isNotKilled = true;
 
         // Existential Reward Initialization
-        // _BattleStageEnvController = transform.parent.GetComponent<BattleStageEnvController>();
         _BattleStageEnvController = FindObjectOfType<BattleStageEnvController>();
-
-        if (_BattleStageEnvController != null)
-            m_Existential = 1f / _BattleStageEnvController.MaxEnvironmentSteps;
-        else
-            m_Existential = 1f / MaxStep;
 
         // Behavior Parameters Script Initialization
         _BehaviorParameters = gameObject.GetComponent<BehaviorParameters>();
@@ -153,7 +105,6 @@ public class BattleAgentController : Agent
             team = BattleTeam.Red;
 
         // Stage Settings Script Initialization
-        // _BattleStageSettings = transform.parent.GetChild(0).gameObject.GetComponent<BattleStageSettings>();
         _BattleStageSettings = FindObjectOfType<BattleStageSettings>();
 
         // Rigidbody Component Initialization
@@ -180,7 +131,7 @@ public class BattleAgentController : Agent
             }
         }
 
-        SendInfoToDashBoard(gameObject.name, h, v, fire);
+        SendInfoToDashboard(gameObject.name, h, v, fire);
     }
 
     public override void Heuristic(in ActionBuffers actionsOut)
@@ -191,9 +142,8 @@ public class BattleAgentController : Agent
         continuousActionsOut[0] = Input.GetAxis("Horizontal");
         continuousActionsOut[1] = Input.GetAxis("Vertical");
 
-        if (Input.GetKey(KeyCode.Space)) {
+        if (Input.GetKey(KeyCode.Space))
             discreteActionsOut[0] = 1;
-        }
     }
 
     private IEnumerator FireDelayCoroutine()
@@ -210,22 +160,20 @@ public class BattleAgentController : Agent
         isFiring = false;
     }
 
-    private void SendInfoToDashBoard(string name, float h, float v, int fire)
+    private void SendInfoToDashboard(string name, float h, float v, int fire)
     {
         SendInfo?.Invoke(name, h, v, fire);
     }
 
-    private void OnRetire()
+    private void OnRetire(bool iskilled)
     {
+        curHP = maxHP;
         isFiring = false;
         canFire = true;
+        
+        if(iskilled)
+           _BattleStageEnvController.KillAgent(team);
+
         OnRetired?.Invoke(gameObject);
     }
-
-    /*
-    private void OnDestroy()
-    {
-        OnDestroyed?.Invoke(gameObject);
-    }
-    */
 }

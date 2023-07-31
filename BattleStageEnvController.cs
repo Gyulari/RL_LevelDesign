@@ -6,13 +6,10 @@ using UnityEditor.UIElements;
 using Unity.VisualScripting;
 using Unity.MLAgents.Policies;
 using static UnityEditor.Progress;
+using System.Linq;
 
 public class BattleStageEnvController : MonoBehaviour
 {
-    // Reset Event Handler
-    public delegate void OnResetEventHandler(Vector3 resetPos, bool isReset);
-    public static event OnResetEventHandler OnReset;
-
     public delegate void OnClearFireRangeEventHandler();
     public static event OnClearFireRangeEventHandler OnClearFireRange;
 
@@ -23,7 +20,7 @@ public class BattleStageEnvController : MonoBehaviour
         [HideInInspector] public Rigidbody Rb;
     }
 
-    public int MaxEnvironmentSteps = 25000;
+    public int MaxEnvironmentSteps = 10000;
 
     public List<BattleAgentInfo> agentsList = new();
 
@@ -39,9 +36,6 @@ public class BattleStageEnvController : MonoBehaviour
     public static float redTotalHP;
 
     public int m_ResetTimer;
-    private Vector3 m_ResetPos;
-
-    public bool reset = false;
 
     StatsRecorder statsRecorder;
 
@@ -66,22 +60,21 @@ public class BattleStageEnvController : MonoBehaviour
             else
                 m_RedAgentGroup.RegisterAgent(item.Agent);
         }
-
-        m_ResetPos = transform.position;
     }
 
     private void FixedUpdate()
     {
         m_ResetTimer += 1;
+
         if(m_ResetTimer >= MaxEnvironmentSteps && MaxEnvironmentSteps > 0) {
-            m_BlueAgentGroup.AddGroupReward(-1);
-            m_RedAgentGroup.AddGroupReward(-1);
-            RewardGraphManager.m_BlueGroupReward = -1;
-            RewardGraphManager.m_RedGroupReward = -1;
-            RewardGraphManager.sig_reachMax = true;
-            RewardGraphManager.sig_RewardRecord = true;
-            _LogManager.RecordEpisodeLog(0, 6 - BattleStageSettings.destroyedBlue, 6 - BattleStageSettings.destroyedRed);
+            m_BlueAgentGroup.AddGroupReward(-10.0f);
+            m_RedAgentGroup.AddGroupReward(-10.0f);
+            // RewardGraphManager.m_DrawReward += -2.0f;
+            // RewardGraphManager.sig_reachMax = true;
+            // RewardGraphManager.sig_RewardRecord = true;
+            // _LogManager.RecordEpisodeLog(0, 6 - BattleStageSettings.destroyedBlue, 6 - BattleStageSettings.destroyedRed);
             _BattleStageSettings.ResetKillCount();
+            OnClearFireRangeList();
             m_BlueAgentGroup.GroupEpisodeInterrupted();
             m_RedAgentGroup.GroupEpisodeInterrupted();
             ResetScene();
@@ -90,20 +83,20 @@ public class BattleStageEnvController : MonoBehaviour
 
     public void EliminateEnemy(int eliminatedTeam)
     {
-        if(eliminatedTeam == (int)Team.Blue) {
+        if (eliminatedTeam == (int)Team.Blue) {
             m_RedAgentGroup.AddGroupReward(1 - (float)m_ResetTimer / MaxEnvironmentSteps);
             m_BlueAgentGroup.AddGroupReward(-1);
-            RewardGraphManager.m_RedGroupReward = 1 - (float)m_ResetTimer / MaxEnvironmentSteps;
-            RewardGraphManager.m_BlueGroupReward = -1;
-            _LogManager.RecordEpisodeLog(-1, 6 - BattleStageSettings.destroyedBlue, 6 - BattleStageSettings.destroyedRed);
+            // RewardGraphManager.m_RedGroupReward += 1 - (float)m_ResetTimer / MaxEnvironmentSteps;
+            // RewardGraphManager.m_BlueGroupReward += -1;
+            // _LogManager.RecordEpisodeLog(-1, 6 - BattleStageSettings.destroyedBlue, 6 - BattleStageSettings.destroyedRed);
             _WinRateSettings.redWin++;
         }
         else {
             m_BlueAgentGroup.AddGroupReward(1 - (float)m_ResetTimer / MaxEnvironmentSteps);
             m_RedAgentGroup.AddGroupReward(-1);
-            RewardGraphManager.m_BlueGroupReward = 1 - (float)m_ResetTimer / MaxEnvironmentSteps;
-            RewardGraphManager.m_RedGroupReward = -1;
-            _LogManager.RecordEpisodeLog(1, 6 - BattleStageSettings.destroyedBlue, 6 - BattleStageSettings.destroyedRed);
+            // RewardGraphManager.m_BlueGroupReward += 1 - (float)m_ResetTimer / MaxEnvironmentSteps;
+            // RewardGraphManager.m_RedGroupReward += -1;
+            // _LogManager.RecordEpisodeLog(1, 6 - BattleStageSettings.destroyedBlue, 6 - BattleStageSettings.destroyedRed);
             _WinRateSettings.blueWin++;
         }
 
@@ -112,24 +105,24 @@ public class BattleStageEnvController : MonoBehaviour
         RewardGraphManager.sig_RewardRecord = true;
 
         _BattleStageSettings.ResetKillCount();
-        OnClearFireRange();
+        OnClearFireRangeList();
 
         m_BlueAgentGroup.EndGroupEpisode();
         m_RedAgentGroup.EndGroupEpisode();
         ResetScene();
     }
 
-    /*
-    public void KillEnemyAgent(int elimintatedAgent)
+    public void KillAgent(BattleTeam killedAgentTeam)
     {
-        if(elimintatedAgent == (int)Team.Blue) {
-            m_RedAgentGroup.AddGroupReward(1.0f);
+        if(killedAgentTeam == BattleTeam.Blue) {
+            m_RedAgentGroup.AddGroupReward(1.0f / 6.0f);
+            // RewardGraphManager.m_RedGroupReward += 1.0f / 6.0f;
         }
-        else {
-            m_BlueAgentGroup.AddGroupReward(1.0f);
+        else if (killedAgentTeam == BattleTeam.Red) {
+            m_BlueAgentGroup.AddGroupReward(1.0f / 6.0f);
+            // RewardGraphManager.m_BlueGroupReward += 1.0f / 6.0f;
         }
     }
-    */
 
     public void ResetScene()
     {
@@ -137,7 +130,6 @@ public class BattleStageEnvController : MonoBehaviour
 
         List<List<Vector3>> posList = new();
 
-        // /*
         List<Vector3> bluePos = new List<Vector3> {new Vector3(-10, 1, -10),
                                                     new Vector3(-10, 1, -7.5f),
                                                     new Vector3(-7.5f, 1, -10),
@@ -150,22 +142,6 @@ public class BattleStageEnvController : MonoBehaviour
                                                     new Vector3(10, 1, 5),
                                                     new Vector3(5, 1, 10),
                                                     new Vector3(7.5f, 1, 7.5f)};
-        // */
-
-        /*
-        List<Vector3> bluePos = new List<Vector3> {new Vector3(-5, 1, -5),
-                                                    new Vector3(-5, 1, -3.75f),
-                                                    new Vector3(-3.75f, 1, -5),
-                                                    new Vector3(-5, 1, -2.5f),
-                                                    new Vector3(-2.5f, 1, -5),
-                                                    new Vector3(-3.75f, 1, -3.75f)};
-        List<Vector3> redPos = new List<Vector3> {new Vector3(5, 1, 5),
-                                                    new Vector3(5, 1, 3.75f),
-                                                    new Vector3(3.75f, 1, 5),
-                                                    new Vector3(5, 1, 2.5f),
-                                                    new Vector3(2.5f, 1, 5),
-                                                    new Vector3(3.75f, 1, 3.75f)};
-        */
 
         posList.Add(bluePos);
         posList.Add(redPos);
@@ -178,71 +154,35 @@ public class BattleStageEnvController : MonoBehaviour
             else {
                 agentsList[i].Agent.gameObject.transform.position = posList[1][i / 2];
             }
+            agentsList[i].Agent.CurrentHP = 100.0f;
         }
 
-        /*
-        for (int i = 0; i < 12; i++) {
-            if (agentsList[i].Agent != null) {
-                if (i % 2 == 0) {
-                    agentsList[i].Agent.gameObject.transform.position = posList[0][i / 2];
+        foreach (var item in agentsList) {
+            if(item.Agent.team == BattleTeam.Blue) {
+                if (m_BlueAgentGroup.GetRegisteredAgents().Contains(item.Agent)) {
+                    continue;
                 }
-                else {
-                    agentsList[i].Agent.gameObject.transform.position = posList[1][i / 2];
-                }
-            }
-        }
-        */
-
-        /*
-        for (int i=0; i < 12; i++) {
-            if(agentsList[i].Agent == null) {
-                BattleAgentInfo battleAgentInfo = new();
-
-                if (i % 2 == 0) {
-                    GameObject agentB = Resources.Load<GameObject>("Prefab/AgentPrefab/BlueAgent");
-                    Instantiate(agentB, gameObject.transform);
-                    battleAgentInfo.Agent = agentB.GetComponent<BattleAgentController>();
-                    battleAgentInfo.Rb = agentB.GetComponent<Rigidbody>();
-
-                    m_BlueAgentGroup.RegisterAgent(battleAgentInfo.Agent);
-                }
-                else {
-                    GameObject agentR = Resources.Load<GameObject>("Prefab/AgentPrefab/RedAgent");
-                    Instantiate(agentR, gameObject.transform);
-                    battleAgentInfo.Agent = agentR.GetComponent<BattleAgentController>();
-                    battleAgentInfo.Rb = agentR.GetComponent<Rigidbody>();
-
-                    Debug.Log(battleAgentInfo.Agent.gameObject.name);
-                    m_RedAgentGroup.RegisterAgent(battleAgentInfo.Agent);
-                }
-
-                agentsList[i] = battleAgentInfo;
-            }
-        }
-        */
-
-        /*
-        for (int i=0; i<12; i++) {
-            if(i % 2 == 0) {
-                agentsList[i].Agent.gameObject.transform.position = posList[0][i / 2];
+                m_BlueAgentGroup.RegisterAgent(item.Agent);
             }
             else {
-                agentsList[i].Agent.gameObject.transform.position = posList[1][i / 2];
+                if (m_RedAgentGroup.GetRegisteredAgents().Contains(item.Agent)) {
+                    continue;
+                }
+                m_RedAgentGroup.RegisterAgent(item.Agent);
             }
         }
-        */
 
-        reset = true;
-        // Destroy(gameObject);
+        foreach(var item in m_BlueAgentGroup.GetRegisteredAgents()) {
+            Debug.Log(item);
+        }
+        foreach (var item in m_RedAgentGroup.GetRegisteredAgents()) {
+            Debug.Log(item);
+        }
+        Debug.Log("EPISODE END");
     }
 
     private void OnClearFireRangeList()
     {
         OnClearFireRange?.Invoke();
-    }
-
-    private void OnDestroy()
-    {
-        OnReset?.Invoke(m_ResetPos, reset);
     }
 }

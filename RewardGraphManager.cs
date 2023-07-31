@@ -5,14 +5,14 @@ using UnityEngine;
 
 public class RewardGraphManager : MonoBehaviour
 {
-    // private enum GraphType { BlueGroupReward, BlueReward, RedGroupReward, RedReward };
-
-    // [SerializeField] private GraphType graphType;
+    [SerializeField] private float maxValue;
+    [SerializeField] private int maxValueNum;
 
     public static bool sig_RewardRecord = false;
     public static bool sig_reachMax = false;
     public static float m_BlueGroupReward = 0.0f;
     public static float m_RedGroupReward = 0.0f;
+    public static float m_DrawReward = 0.0f;
 
     private int epiNum = 0;
 
@@ -24,28 +24,35 @@ public class RewardGraphManager : MonoBehaviour
 
     private void Update()
     {
+        /*
         if (sig_RewardRecord) {
             epiNum++;
 
             if (sig_reachMax) {
                 GameObject newPurpleDotToB = Instantiate(purpleDot, dotInitPosB);
-                newPurpleDotToB.GetComponent<RectTransform>().anchoredPosition += new Vector2(1.6f * epiNum, 55f);
+                newPurpleDotToB.GetComponent<RectTransform>().anchoredPosition
+                    += new Vector2((470.0f / maxValueNum) * epiNum, 165.0f + 110.0f * (m_DrawReward + m_BlueGroupReward) / maxValue);
 
                 GameObject newPurpleDotToR = Instantiate(purpleDot, dotInitPosR);
-                newPurpleDotToR.GetComponent<RectTransform>().anchoredPosition += new Vector2(1.6f * epiNum, 55f);
+                newPurpleDotToR.GetComponent<RectTransform>().anchoredPosition
+                    += new Vector2((470.0f / maxValueNum) * epiNum, 165.0f + 110.0f * (m_DrawReward + m_RedGroupReward) / maxValue);
             }
             else {
                 GameObject newBlueDot = Instantiate(blueDot, dotInitPosB);
-                newBlueDot.GetComponent<RectTransform>().anchoredPosition += new Vector2(1.6f * epiNum, 165f + (m_BlueGroupReward * 110f));
+                newBlueDot.GetComponent<RectTransform>().anchoredPosition
+                    += new Vector2((470.0f / maxValueNum) * epiNum, 165.0f + 110.0f * m_BlueGroupReward / maxValue);
 
                 GameObject newRedDot = Instantiate(redDot, dotInitPosR);
-                newRedDot.GetComponent<RectTransform>().anchoredPosition += new Vector2(1.6f * epiNum, 165f + (m_RedGroupReward * 110f));
+                newRedDot.GetComponent<RectTransform>().anchoredPosition
+                    += new Vector2((470.0f / maxValueNum) * epiNum, 165.0f + 110.0f * m_RedGroupReward / maxValue);
             }
 
             sig_reachMax = false;
             sig_RewardRecord = false;
             m_BlueGroupReward = 0;
             m_RedGroupReward = 0;
+            m_DrawReward = 0;
         }
+        */
     }
 }
