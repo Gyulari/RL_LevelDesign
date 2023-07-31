@@ -32,3 +32,20 @@ Level design using Reinforcement Learning with Unity ML-Agents
   - To prevent Agent Group from being destroyed as all Agents are destroyed, last agent isn't switched to inactive state.
 - Add Dashboard UI for checking actions and HP of each agents, and progress of steps of the current episode.
 - Add Log UI for checking the reason for episode interruption and the status of Agent Group at interruption.
+
+<br/>
+
+▷ ver.1.1.2 [2023-07-31]
+- Agent 제거 판정을 수신하는 OnDestroyed Event를 제거
+- 다음 Episode로 넘어갈 때 제거된 Agent 수를 초기화하는 ResetKillCount가 누락된 오류를 수정
+- 비활성 상태로 전환된 Agent의 HP가 초기화되지 않는 오류를 수정
+- 다음 Episode로 전환됐을 때 사거리 밖의 Agent를 공격하는 오류를 수정
+- 다음 Episode로 넘어갈 때 비활성 상태로 전환된 Agent를 Agent Group에 다시 Register하는 코드를 추가
+
+<br/>
+
+- Remove OnDestroyed Event that receives agents destruction decision.
+- Debug an error omitting ResetKillCount function which reset the number of agents removed when switching to the next episode.
+- Debug an error where the HP of an agents that has been switched to an inactive state is not initialized.
+- Debug an error attacking agents outside the range when switched to the next episode.
+- Add code to re-register an inactive agents to the AgentGroup when switching to the next episode.
