@@ -49,3 +49,18 @@ Level design using Reinforcement Learning with Unity ML-Agents
 - Debug an error where the HP of an agents that has been switched to an inactive state is not initialized.
 - Debug an error attacking agents outside the range when switched to the next episode.
 - Add code to re-register an inactive agents to the AgentGroup when switching to the next episode.
+
+<br/>
+
+▷ ver.1.1.3 [2023-08-16]
+- HP Property 내에서 처리하던 에이전트 비활성화 과정을 HandleRetire()로 분리
+- Fire Range 초기화 이벤트 함수 명칭 변경
+- RewardGraph에 기록할 reward 정보를 전달하는 SetInfo() 추가
+- Draw reward를 상수에서 public 변수로 변경하여 editor에서 직접 조작 가능하게 수정
+
+<br/>
+
+- Separating the agent deactivation process from within HP property to HandleRetire().
+- Rename fire range initialization event function.
+- Add SetInfo() to send reward information to be recorded in the reward graph.
+- Change draw reward from a constant to a public variable to manipulate directly in the editor.
