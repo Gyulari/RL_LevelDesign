@@ -12,19 +12,22 @@ public class LogManager : MonoBehaviour
 
     private List<string> results = new List<string>();
 
-    public void RecordEpisodeLog(int epiLog, int remainedB, int remainedR)
+    public void RecordEpisodeLog(int epiLog)
     {
-        string log = "";
+        int scoreB = BattleStageSettings.retiredRed;
+        int scoreR = BattleStageSettings.retiredBlue;
 
-        switch(epiLog){
+        string log = " B : " + scoreB + " / " + "R : " + scoreR;
+
+        switch (epiLog){
             case -1:
-                log = "[Red Win] " + "B : " + remainedB + " / " + "R : " + remainedR;
+                log = "[Red Win]" + log;
                 break;
             case 0:
-                log = "[Draw] " + "B : " + remainedB + " / " + "R : " + remainedR;
+                log = "[Draw]" + log;
                 break;
             case 1:
-                log = "[Blue Win] " + "B : " + remainedB + " / " + "R : " + remainedR;
+                log = "[Blue Win]" + log;
                 break;
         }
 

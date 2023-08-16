@@ -1,45 +1,24 @@
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
-using Unity.MLAgents;
 using UnityEngine;
 
 public class BattleStageSettings : MonoBehaviour
 {
-    public GameObject battleStageEnv;
-    BattleStageEnvController _BattleStageEnvController;
-
-    public Material blueMaterial;
-    public Material redMaterail;
-    public bool randomizePlayersTeamForTraining = false;
     public float agentRunSpeed;
 
-    public static bool allAgentsDestroyed = false;
+    // Count of agents
+    public int totalAgentCount = 6;
+    public static int retiredBlue = 0;
+    public static int retiredRed = 0;
 
-    public int totalAgentCount = 10;
-    public static int destroyedBlue = 0;
-    public static int destroyedRed = 0;
+    // Script Component
+    BattleStageEnvController _BattleStageEnvController;
 
-    public TMP_Text dB;
-    public TMP_Text dR;
-
-    private void OnEnable()
+    private void Awake()
     {
-        ResetKillCount();
-        _BattleStageEnvController = battleStageEnv.GetComponent<BattleStageEnvController>();
+        // Script Component Initialization
+        _BattleStageEnvController = FindObjectOfType<BattleStageEnvController>();
     }
 
-    private void OnDisable()
-    {
-        
-    }
-
-    private void Update()
-    {
-        dB.text = destroyedBlue.ToString();
-        dR.text = destroyedRed.ToString();
-    }
-
+    // Call the result handling function when all agents in one team retire
     public void AllAgentsDestroyed(BattleTeam team)
     {
         if(team == BattleTeam.Blue) {
@@ -52,7 +31,7 @@ public class BattleStageSettings : MonoBehaviour
 
     public void ResetKillCount()
     {
-        destroyedBlue = 0;
-        destroyedRed = 0;
+        retiredBlue = 0;
+        retiredRed = 0;
     }
 }

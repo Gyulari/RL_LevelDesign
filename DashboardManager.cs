@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+// Information of action from agents
 public class ReceiveInfo
 {
     public string name;
@@ -111,7 +112,7 @@ public class DashboardManager : MonoBehaviour
                         actionList[idx].transform.GetChild(4).gameObject.GetComponent<Image>().color = redColor; // Fire
                 }
                 
-                hpList[idx].GetComponent<Image>().fillAmount = agents[idx].CurrentHP / 100.0f;
+                hpList[idx].GetComponent<Image>().fillAmount = agents[idx].HP / 100.0f;
             }
         }
     }

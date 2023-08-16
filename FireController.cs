@@ -9,44 +9,44 @@ public class FireController : MonoBehaviour
     [SerializeField] private TargetType target;
 
     // List of enemy agents in fire range
-    public List<GameObject> collidedObjects = new();
+    public List<GameObject> inRangeObjects = new();
 
     private void OnEnable()
     {
         // Subscribe to the destroy event function
         BattleAgentController.OnRetired += RemoveRetiredObjects;
-        BattleStageEnvController.OnClearFireRange += AllClearFireRangeList;
+        BattleStageEnvController.ClearFireRange += ClearFireRangeList;
     }
 
     private void OnDisable()
     {
         // Unsubscribe to the destroy event function
         BattleAgentController.OnRetired -= RemoveRetiredObjects;
-        BattleStageEnvController.OnClearFireRange -= AllClearFireRangeList;
+        BattleStageEnvController.ClearFireRange -= ClearFireRangeList;
     }
 
     public void Fire()
     {
-        GameObject enemy = GetNearestEnemy(collidedObjects);
+        GameObject enemy = GetNearestEnemy(inRangeObjects);
 
         // Fire to nearest enemy agnets
         if (enemy != null) {
             DrawFireLine(enemy);
-            enemy.GetComponent<BattleAgentController>().CurrentHP -= 10;
+            enemy.GetComponent<BattleAgentController>().HP -= 10;
         }
     }
 
     // Get nearest enemy agents in fire range
-    private GameObject GetNearestEnemy(List<GameObject> collidedObjects)
+    private GameObject GetNearestEnemy(List<GameObject> objList)
     {
-        if (collidedObjects.Count == 0)
+        if (objList.Count == 0)
             return null;
 
         float nearestDistance = float.MaxValue;
         float dist;
         GameObject nearestEnemy = null;
 
-        foreach (GameObject obj in collidedObjects) {
+        foreach (GameObject obj in objList) {
             dist = Vector3.Distance(transform.parent.position, obj.transform.position);
 
             if(dist < nearestDistance) {
@@ -79,28 +79,28 @@ public class FireController : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         // Add enemy agents within the fire range to the list
-        if (!collidedObjects.Contains(other.gameObject) && other.gameObject.transform.CompareTag(target.ToString())) {
-            collidedObjects.Add(other.gameObject.transform.gameObject);
+        if (!inRangeObjects.Contains(other.gameObject) && other.gameObject.transform.CompareTag(target.ToString())) {
+            inRangeObjects.Add(other.gameObject.transform.gameObject);
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
         // Remove enemy agents outside the fire range from the list
-        if (collidedObjects.Contains(other.gameObject) && other.gameObject.transform.CompareTag(target.ToString())) {
-            collidedObjects.Remove(other.gameObject.transform.gameObject);
+        if (inRangeObjects.Contains(other.gameObject) && other.gameObject.transform.CompareTag(target.ToString())) {
+            inRangeObjects.Remove(other.gameObject.transform.gameObject);
         }
     }
 
     private void RemoveRetiredObjects(GameObject retiredObjects)
     {
-        if (collidedObjects.Contains(retiredObjects)) {
-            collidedObjects.Remove(retiredObjects);
+        if (inRangeObjects.Contains(retiredObjects)) {
+            inRangeObjects.Remove(retiredObjects);
         }
     }
 
-    private void AllClearFireRangeList()
+    private void ClearFireRangeList()
     {
-        collidedObjects.Clear();
+        inRangeObjects.Clear();
     }
 }

@@ -9,7 +9,7 @@ public class RewardGraphManager : MonoBehaviour
     [SerializeField] private int maxValueNum;
 
     public static bool sig_RewardRecord = false;
-    public static bool sig_reachMax = false;
+    public static bool sig_Draw = false;
     public static float m_BlueGroupReward = 0.0f;
     public static float m_RedGroupReward = 0.0f;
     public static float m_DrawReward = 0.0f;
@@ -24,18 +24,17 @@ public class RewardGraphManager : MonoBehaviour
 
     private void Update()
     {
-        /*
         if (sig_RewardRecord) {
             epiNum++;
 
-            if (sig_reachMax) {
+            if (sig_Draw) {
                 GameObject newPurpleDotToB = Instantiate(purpleDot, dotInitPosB);
                 newPurpleDotToB.GetComponent<RectTransform>().anchoredPosition
-                    += new Vector2((470.0f / maxValueNum) * epiNum, 165.0f + 110.0f * (m_DrawReward + m_BlueGroupReward) / maxValue);
+                    += new Vector2((470.0f / maxValueNum) * epiNum, 165.0f + 110.0f * m_BlueGroupReward / maxValue);
 
                 GameObject newPurpleDotToR = Instantiate(purpleDot, dotInitPosR);
                 newPurpleDotToR.GetComponent<RectTransform>().anchoredPosition
-                    += new Vector2((470.0f / maxValueNum) * epiNum, 165.0f + 110.0f * (m_DrawReward + m_RedGroupReward) / maxValue);
+                    += new Vector2((470.0f / maxValueNum) * epiNum, 165.0f + 110.0f * m_RedGroupReward / maxValue);
             }
             else {
                 GameObject newBlueDot = Instantiate(blueDot, dotInitPosB);
@@ -47,12 +46,11 @@ public class RewardGraphManager : MonoBehaviour
                     += new Vector2((470.0f / maxValueNum) * epiNum, 165.0f + 110.0f * m_RedGroupReward / maxValue);
             }
 
-            sig_reachMax = false;
+            sig_Draw = false;
             sig_RewardRecord = false;
             m_BlueGroupReward = 0;
             m_RedGroupReward = 0;
             m_DrawReward = 0;
         }
-        */
     }
 }
