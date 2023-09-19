@@ -18,7 +18,7 @@ public class BattleAgentController : Agent
     public static event OnRetiredEventHandler OnRetired;
 
     // Send Information to Dashboard UI Event
-    public delegate void SendInfoEventHandler(string name, float h, float v, int fire);
+    public delegate void SendInfoEventHandler(string name, int h, int v, int fire);
     public static event SendInfoEventHandler SendInfo;
 
     // Team
@@ -84,9 +84,16 @@ public class BattleAgentController : Agent
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
         // Type of behavior [h : Horizontal movement value / v : Vertical movement value / fire : Whether to fire]
-        var h = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f);
-        var v = Mathf.Clamp(actionBuffers.ContinuousActions[1], -1f, 1f);
-        var fire = actionBuffers.DiscreteActions[0];
+        var h = actionBuffers.DiscreteActions[0] - 1;
+        var v = actionBuffers.DiscreteActions[1] - 1;
+        var fire = actionBuffers.DiscreteActions[2];
+
+        if(fire == 1) {
+            if(isFiring || !canFire || _FireController.inRangeObjects.Count == 0)
+                _BattleStageEnvController.EvaluateFireDecision(team, false);
+            else if (!isFiring && canFire && _FireController.inRangeObjects.Count != 0)
+                _BattleStageEnvController.EvaluateFireDecision(team, true);
+        }
 
         // If agent is not on firing (to prevent firing while on moving)
         if (!isFiring) {
@@ -95,7 +102,7 @@ public class BattleAgentController : Agent
 
             // If agent is not on fire delay
             // Fire Delay : Delay after firing until next firing is possible (to prevent uninterrupted continuous firing)
-            if (canFire && fire == 1) {
+            if (canFire && fire == 1 && _FireController.inRangeObjects.Count != 0) {
                 _FireController.Fire();
                 StartCoroutine(FireDelayCoroutine());
                 StartCoroutine(FireStayCoroutine());
@@ -176,7 +183,7 @@ public class BattleAgentController : Agent
     }
 
     // Send Information to Dashboard UI Event Function
-    private void SendInfoToDashboard(string name, float h, float v, int fire)
+    private void SendInfoToDashboard(string name, int h, int v, int fire)
     {
         SendInfo?.Invoke(name, h, v, fire);
     }

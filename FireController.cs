@@ -32,7 +32,7 @@ public class FireController : MonoBehaviour
         // Fire to nearest enemy agnets
         if (enemy != null) {
             DrawFireLine(enemy);
-            enemy.GetComponent<BattleAgentController>().HP -= 10;
+            enemy.GetComponent<BattleAgentController>().HP -= 0;
         }
     }
 

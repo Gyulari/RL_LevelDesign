@@ -28,7 +28,7 @@ public class BattleStageEnvController : MonoBehaviour
     public int m_ResetTimer;
 
     // Attenuation Factor that reduces reward by the frames used during the episode   
-    float AF;
+    [HideInInspector] public float AF;
 
     public float drawReward;
 
@@ -121,12 +121,32 @@ public class BattleStageEnvController : MonoBehaviour
     public void KillAgent(BattleTeam killedAgentTeam)
     {
         if(killedAgentTeam == BattleTeam.Blue) {
-            m_RedAgentGroup.AddGroupReward(1.0f);
-            SetRewardGraphInfo(1.0f, 0.0f, BattleTeam.Red, false);
+            m_RedAgentGroup.AddGroupReward(1.0f / 6.0f);
+            SetRewardGraphInfo(1f / 6f, 0.0f, BattleTeam.Red, false);
         }
         else if (killedAgentTeam == BattleTeam.Red) {
-            m_BlueAgentGroup.AddGroupReward(1.0f);
-            SetRewardGraphInfo(1.0f, 0.0f, BattleTeam.Blue, false);
+            m_BlueAgentGroup.AddGroupReward(1.0f / 6.0f);
+            SetRewardGraphInfo(1f / 6f, 0.0f, BattleTeam.Blue, false);
+        }
+    }
+
+    public void EvaluateFireDecision(BattleTeam shootAgentTeam, bool withEnemy)
+    {
+        if (withEnemy) {
+            if(shootAgentTeam == BattleTeam.Blue) {
+                m_BlueAgentGroup.AddGroupReward(1f / 20000f);
+            }
+            else if(shootAgentTeam == BattleTeam.Red) {
+                m_RedAgentGroup.AddGroupReward(1f / 20000f);
+            }
+        }
+        else {
+            if (shootAgentTeam == BattleTeam.Blue) {
+                m_BlueAgentGroup.AddGroupReward(-1f / MaxEnvironmentFrames);
+            }
+            else if (shootAgentTeam == BattleTeam.Red) {
+                m_RedAgentGroup.AddGroupReward(-1f / MaxEnvironmentFrames);
+            }
         }
     }
 
@@ -142,6 +162,20 @@ public class BattleStageEnvController : MonoBehaviour
 
         List<List<Vector3>> posList = new();
 
+        List<Vector3> bluePos = new List<Vector3> {new Vector3(-10, 1, 0),
+                                                    new Vector3(-8, 1, -2),
+                                                    new Vector3(-6, 1, -4),
+                                                    new Vector3(-4, 1, -6),
+                                                    new Vector3(-2, 1, -8),
+                                                    new Vector3(0, 1, -10)};
+        List<Vector3> redPos = new List<Vector3> {new Vector3(0, 1, 10),
+                                                    new Vector3(2, 1, 8),
+                                                    new Vector3(4, 1, 6),
+                                                    new Vector3(6, 1, 4),
+                                                    new Vector3(8, 1, 2),
+                                                    new Vector3(10, 1, 0)};
+
+        /*
         List<Vector3> bluePos = new List<Vector3> {new Vector3(-10, 1, -10),
                                                     new Vector3(-10, 1, -7.5f),
                                                     new Vector3(-7.5f, 1, -10),
@@ -154,6 +188,7 @@ public class BattleStageEnvController : MonoBehaviour
                                                     new Vector3(10, 1, 5),
                                                     new Vector3(5, 1, 10),
                                                     new Vector3(7.5f, 1, 7.5f)};
+        */
 
         posList.Add(bluePos);
         posList.Add(redPos);

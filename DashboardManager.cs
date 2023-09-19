@@ -7,8 +7,8 @@ using UnityEngine.UI;
 public class ReceiveInfo
 {
     public string name;
-    public float horizontal;
-    public float vertical;
+    public int horizontal;
+    public int vertical;
     public int fire;
 }
 
@@ -42,8 +42,8 @@ public class DashboardManager : MonoBehaviour
             ReceiveInfo rInfo = new ReceiveInfo
             {
                 name = agents[i].gameObject.name,
-                horizontal = 0.0f,
-                vertical = 0.0f,
+                horizontal = 0,
+                vertical = 0,
                 fire = 0
             };
 
@@ -117,7 +117,7 @@ public class DashboardManager : MonoBehaviour
         }
     }
 
-    private void ReceiveInfoFromAgents(string name, float h, float v, int f)
+    private void ReceiveInfoFromAgents(string name, int h, int v, int f)
     {
         for(int i=0; i<agents.Count; i++) {
             if (agents[i].gameObject.name == name) {
